@@ -1,0 +1,60 @@
+name: ${{ parameters.serviceName }}_$(Build.SourceBranchName)_$(date:yyyyMHdd)$(rev:.r)
+parameters:
+  - name: 'serviceName'
+    default: 'my-service'
+    type: string
+  - name: 'isSonarQubeScanRequired'
+    type: boolean
+    default: True
+  - name: 'codeCoverageToolOption'
+    type: string
+    default: '380000'
+  - name: 'isNexuquScanRequired'
+    type: boolean
+    default: True
+  - name: 'skipNexusScanValidationErrors'
+    type: boolean
+    default: true
+  - name: 'skipUnitAndSonarTestErrors'
+    type: boolean
+    default: true
+  - name: 'skipUnitTestErrors'
+    type: boolean
+    default: false
+
+variables:
+  - name: enableSwissRePreJobTasks
+    value: true
+  — name: enableSwissRePostJobTasks
+    value: true
+  - name: 'achepositoryName'
+    value: $[ lower('${{ parameters.serviceName }}') ]
+  - name: 'imageTag'
+    value: $(Build.SourceBranchName)-$(BUild.BuildId)
+
+resources:
+  repositories:
+    - repository: my-repository
+      type: git
+      name: my-repository
+      ref: 'release/v1.0.0'
+
+trigger: none
+
+stages:
+
+- template: adoPipelines/aks/templates/template-stages-deliver-helm-chart.yml@iptiqa_Dev0ps
+  parameters:
+    serviceName: 'S{{ parameters.serviceName }}'
+    buildArguments: '--build-arg JAR_FILE=target/my-service-0.0.1.jar --build-arg todo'
+    isSonarQubeScanRequired: ${{ parameters.isSonarQubeScanRequired }}
+    skipNexusScanValidationErrors: ${{ parameters.skipNexusScanValidationErrors }}
+    skipUnitAndSonarTestErrors: ${{ parameters.skipUnitAndSonarTestErrors }}
+    skipUnitTestErrors: ${{ parameters.skipUnitTestErrors }}
+    codeCoverageToolOption: ${{ parameters.codeCoverageToolOption }}
+    isNexuquScanRequired: ${{ parameters.isNexuquScanRequired }}
+    buildContext: 'SCPipeline.WorkspaceJ'
+    isDockerBuildRequired: false
+    jdkVersionOption: 1.17
+    isJUnitTestRequired: false
+    isPublishHelmChartDRequired: false
