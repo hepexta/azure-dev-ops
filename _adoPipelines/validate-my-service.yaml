@@ -23,14 +23,10 @@ parameters:
     default: false
 
 variables:
-  - name: enableSwissRePreJobTasks
-    value: true
-  — name: enableSwissRePostJobTasks
-    value: true
-  - name: 'achepositoryName'
+  - name: 'srvRepositoryName'
     value: $[ lower('${{ parameters.serviceName }}') ]
   - name: 'imageTag'
-    value: $(Build.SourceBranchName)-$(BUild.BuildId)
+    value: $(Build.SourceBranchName)-$(Build.BuildId)
 
 resources:
   repositories:
@@ -45,15 +41,15 @@ stages:
 
 - template: adoPipelines/aks/templates/template-stages-deliver-helm-chart.yml@iptiqa_Dev0ps
   parameters:
-    serviceName: 'S{{ parameters.serviceName }}'
+    serviceName: '${{ parameters.serviceName }}'
     buildArguments: '--build-arg JAR_FILE=target/my-service-0.0.1.jar --build-arg todo'
     isSonarQubeScanRequired: ${{ parameters.isSonarQubeScanRequired }}
     skipNexusScanValidationErrors: ${{ parameters.skipNexusScanValidationErrors }}
     skipUnitAndSonarTestErrors: ${{ parameters.skipUnitAndSonarTestErrors }}
     skipUnitTestErrors: ${{ parameters.skipUnitTestErrors }}
     codeCoverageToolOption: ${{ parameters.codeCoverageToolOption }}
-    isNexuquScanRequired: ${{ parameters.isNexuquScanRequired }}
-    buildContext: 'SCPipeline.WorkspaceJ'
+    isNexuquScanRequired: ${{ parameters.isNexusIqScanRequired }}
+    buildContext: '$(Pipeline.Workspace)'
     isDockerBuildRequired: false
     jdkVersionOption: 1.17
     isJUnitTestRequired: false
